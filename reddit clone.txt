@@ -1,0 +1,146 @@
+this project tells how to manual deploying docker and k8s 
+
+PIPELINE - github ------cloned into CI server ----- push into docker hub ------ deploy into k8s 
+
+step 1 - create ec2 instance named CI server with t2.micro as instance type 
+
+step 2 - install docker on it 
+
+sudo apt-get update
+sudo apt-get install docker.io -y
+sudo usermod -aG docker $USER && newgrp docker
+
+step 3 - 
+git clone https://github.com/LondheShubham153/reddit-clone-k8s-ingress.git
+
+step 4 - install docker 
+
+step 5  - use linux commands 
+$ ls,$ cd go inside $ ls $ cat Dockerfile 
+
+step 6 - $ build and push 
+docker build . -t rajiakella09/reddit-clone 
+here rajiakella09 - repo name in dockerhub 
+reddit-clone - image name ede 
+
+step 7 -
+$ docker login 
+# to login into docker 
+
+step 8 - 
+push into dockerhub 
+docker push rajiakella09/reddit-clone 
+
+
+CI SERVER IS DONE WE PUSHED TO DOCKERHUB 
+
+CREATE EC2 INSTANCE WITH CD SERVER AND DEPLOY INTO K8S 
+
+step 1 - create ec2 instance named CD server with t2.large 
+
+step 2 - install docker and minikube and kubectl install 
+
+#commands to install docker 
+sudo apt-get update
+sudo apt-get install docker.io -y
+sudo usermod -aG docker $USER && newgrp docker
+
+
+#commands to install minikube and kubectl 
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+sudo install minikube-linux-amd64 /usr/local/bin/minikube 
+sudo snap install kubectl --classic
+minikube start --driver=docker
+
+
+step 3 - $mkdir k8s(create k8s)
+$cd k8s(go inside k8s)
+
+step 4 - 
+vim deployment.yaml 
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reddit-clone-deployment
+  labels:
+    app: reddit-clone
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: reddit-clone
+  template:
+    metadata:
+      labels:
+        app: reddit-clone
+    spec:
+      containers:
+      - name: reddit-clone
+        image: rajiakella09/reddit-clone
+        ports:
+        - containerPort: 3000
+
+# here imagename is reddit-clone and rajiakella09 is name of docker hub repository 
+
+step 5 - kubectl apply -f deployment.yaml 
+
+step 6 - vim service.yaml
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: reddit-clone-service
+  labels:
+    app: reddit-clone
+spec:s
+  type: NodePort
+  ports:
+  - port: 3000
+    targetPort: 3000
+    nodePort: 31000
+  selector:
+    app: reddit-clone
+
+
+step 7 - kubectl apply -f service.yaml 
+
+step 8 - #connect with minikube with the service 
+
+$minikube service reddit-clone-service --url 
+
+(here reddit-clone-service it is service name)
+(here we connect with minikube our service which is having IP addresses)
+
+step 9 - curl -L paste o/p from step 9
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
